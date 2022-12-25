@@ -1,6 +1,7 @@
 package com.github.fabriciolfj.inventoryservice.usecase.domain;
 
 import com.github.fabriciolfj.inventoryservice.entities.InventoryEntity;
+import com.github.fabriciolfj.inventoryservice.usecase.ProviderFindProductInventory;
 import com.github.fabriciolfj.inventoryservice.usecase.ProviderSaveInventory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,11 +14,15 @@ import reactor.core.publisher.Mono;
 public class RegistryInventoryUseCase {
 
     private final ProviderSaveInventory providerSaveInventory;
+    private final ProviderFindProductInventory providerFindProductInventory;
 
-    public Mono<Void> execute(final Mono<InventoryEntity> entity) {
-        return entity
-                .doOnNext(c -> log.info("Inventory executed {}", c.code()))
-                .flatMap(providerSaveInventory::process)
-                .doOnSuccess(c -> log.info("Inventory save success"));
+    public Mono<Void> execute(final InventoryEntity entity) {
+        return Mono.just(entity)
+                .doOnNext(c -> log.info("Inventory executed {}", c.getCode()))
+                .flatMap(c -> providerFindProductInventory.process(c.getProduct()))
+                .map(c -> entity.updateBalance(c))
+                .switchIfEmpty(Mono.defer(() -> providerSaveInventory.process(entity)))
+                .doOnSuccess(c -> log.info("Inventory save success {}", c))
+                .then();
     }
 }
