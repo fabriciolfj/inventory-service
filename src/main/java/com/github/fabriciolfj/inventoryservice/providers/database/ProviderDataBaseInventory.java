@@ -22,7 +22,7 @@ public class ProviderDataBaseInventory implements ProviderSaveInventory, Provide
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
     public Mono<InventoryEntity> process(final InventoryEntity entity) {
         return Mono.just(entity).map(InventoryDataMapper::toData)
-                .flatMap(d -> repository.save(d))
+                .flatMap(repository::save)
                 .thenReturn(entity);
     }
 

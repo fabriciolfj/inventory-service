@@ -20,8 +20,9 @@ public class RegistryInventoryUseCase {
         return Mono.just(entity)
                 .doOnNext(c -> log.info("Inventory executed {}", c.getCode()))
                 .flatMap(c -> providerFindProductInventory.process(c.getProduct()))
-                .map(c -> entity.updateBalance(c))
-                .switchIfEmpty(Mono.defer(() -> providerSaveInventory.process(entity)))
+                .map(entity::updateBalance)
+                .flatMap(providerSaveInventory::process)
+                .switchIfEmpty(Mono.defer(() -> providerSaveInventory.process(entity.initBalance())))
                 .doOnSuccess(c -> log.info("Inventory save success {}", c))
                 .then();
     }
