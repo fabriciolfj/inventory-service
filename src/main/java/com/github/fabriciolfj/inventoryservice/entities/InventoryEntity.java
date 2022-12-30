@@ -1,6 +1,7 @@
 package com.github.fabriciolfj.inventoryservice.entities;
 
 
+import com.github.fabriciolfj.inventoryservice.exceptions.InventoryNegativeException;
 import com.github.fabriciolfj.inventoryservice.exceptions.UpdateInvalidInventoryException;
 import lombok.*;
 
@@ -13,13 +14,13 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class InventoryEntity {
 
-    private static final int BALANCE_INIT = 0;
+    private static final long BALANCE_INIT = 0;
 
     @EqualsAndHashCode.Include
     private String code;
     private String product;
-    private int quantity;
-    private int balance;
+    private long quantity;
+    private long balance;
     private TypeOperation typeOperation;
     private LocalDateTime registration;
 
@@ -31,25 +32,43 @@ public class InventoryEntity {
         return this.typeOperation.getDescription().equals(TypeOperation.ENTRANCE.getDescription());
     }
 
+    public boolean isNegative() {
+        return this.balance < BALANCE_INIT;
+    }
+
     public InventoryEntity updateBalance(final InventoryEntity entity) {
         return process(entity.getBalance());
     }
 
-    public InventoryEntity initBalance() {
-        return process(BALANCE_INIT);
+    public InventoryEntity getValidInventory() {
+        if (this.balance == BALANCE_INIT) {
+            throw new UpdateInvalidInventoryException();
+        }
+
+        return this;
     }
 
-    private InventoryEntity process(final int balance) {
+    private InventoryEntity process(final long balance) {
         if (isExit() && balance == BALANCE_INIT) {
             throw new UpdateInvalidInventoryException();
         }
 
         if (isExit()) {
-            this.balance = balance - this.quantity;
-            return this;
+            return debit(balance - this.quantity);
         }
 
         this.balance = balance + this.quantity;
+
+        return this;
+    }
+
+    private InventoryEntity debit(long balance) {
+        this.balance = balance;
+
+        if (this.balance <  BALANCE_INIT) {
+            throw new InventoryNegativeException();
+        }
+
         return this;
     }
 }

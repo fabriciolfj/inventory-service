@@ -6,7 +6,7 @@ import com.github.fabriciolfj.inventoryservice.providers.database.data.Inventory
 
 public class InventoryDataMapper {
 
-    private static final int QUANTIY_ZERO = 0;
+    private static final long QUANTIY_ZERO = 0;
     private InventoryDataMapper() { }
 
     public static InventoryData toData(final InventoryEntity entity) {
@@ -17,6 +17,7 @@ public class InventoryDataMapper {
                 .code(entity.getCode())
                 .product(entity.getProduct())
                 .balance(entity.getBalance())
+                .dateRegistration(entity.getRegistration())
                 .build();
     }
 

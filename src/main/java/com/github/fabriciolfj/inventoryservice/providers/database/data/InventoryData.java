@@ -4,6 +4,8 @@ import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
+import org.springframework.data.relational.core.sql.LockMode;
+import org.springframework.data.relational.repository.Lock;
 
 import java.time.LocalDateTime;
 
@@ -22,9 +24,9 @@ public class InventoryData {
     private Long id;
     private String code;
     private String product;
-    private int entrance;
-    private int exit;
-    private int balance;
+    private long entrance;
+    private long exit;
+    private long balance;
     @Column("date_registration")
     private LocalDateTime dateRegistration;
 }

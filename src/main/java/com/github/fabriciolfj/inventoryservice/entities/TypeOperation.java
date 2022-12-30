@@ -15,10 +15,10 @@ public enum TypeOperation {
 
     private final String description;
 
-    public static final TypeOperation toEnum(final String description) {
+    public static TypeOperation toEnum(final String description) {
         return Stream.of(TypeOperation.values())
-                .filter(c -> c.description.equals(description))
+                .filter(c -> c.getDescription().equals(description))
                 .findAny()
-                .orElseThrow(() -> new TypeOperationNotFoundException());
+                .orElseThrow(TypeOperationNotFoundException::new);
     }
 }
